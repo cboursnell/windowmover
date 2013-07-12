@@ -4,7 +4,7 @@
 # move active window around
 #
 
-
+# wmctrl -r :ACTIVE: -b remove,maximized_vert; wmctrl -r :ACTIVE: -b remove,maximized_horz; wmctrl -r :ACTIVE: -e 0,0,0,674,768
 require 'rubygems'
 require 'trollop'
 
@@ -12,6 +12,8 @@ opts = Trollop::options do
   version "v0.0.1a"
   opt :left, "Move active window to the left"
   opt :right, "Move active window to the left"
+  opt :fullheight, "Increase height to full"
+  opt :topleft, "Move window to the top left"
 end
 
 cmd = "xprop -root -f _NET_ACTIVE_WINDOW 0x \" \\$0\\\\n\" _NET_ACTIVE_WINDOW | awk \"{print \\$2}\""
@@ -54,5 +56,16 @@ elsif opts.right
   end
   cmd = "wmctrl -i -r #{id} -e '0,#{x},0,960,#{h}'"
   #puts cmd
+  `#{cmd}`
+elsif opts.fullheight
+  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,#{w},1138'"
+  `#{cmd}`
+elsif opts.topleft
+  if x >= 1920
+    x = 1920
+  else
+    x = 0
+  end
+  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,960,569'"
   `#{cmd}`
 end
