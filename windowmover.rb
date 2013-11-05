@@ -26,6 +26,11 @@ cmd = "wmctrl -lG | grep #{s}"
 geometry = `#{cmd}`
 puts geometry if opts.test
 
+if geometry=~/desktop/ or geometry=~/Desktop/
+  puts "this is an invalid window" if opts.test
+  exit
+end
+
 a = geometry.split(/\s+/)
 
 id = a[0]
@@ -47,6 +52,9 @@ if opts.left
   else
     h=1173
   end
+  if x<0
+    x=0
+  end
   cmd = "wmctrl -i -r #{id} -e '0,#{x},0,954,#{h}'"
   puts cmd if opts.test
   `#{cmd}` if !opts.test
@@ -62,7 +70,6 @@ elsif opts.right
   if x > 2880
     x = 2880
   end
-  puts "x: #{x}"
   cmd = "wmctrl -i -r #{id} -e '0,#{x},0,960,#{h}'"
   puts cmd if opts.test
   `#{cmd}` if !opts.test
