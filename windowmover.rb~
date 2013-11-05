@@ -13,18 +13,17 @@ opts = Trollop::options do
   opt :left, "Move active window to the left"
   opt :right, "Move active window to the left"
   opt :fullheight, "Increase height to full"
-  opt :test, "Don't actually do anything"
+  opt :topleft, "Move window to the top left"
 end
 
 cmd = "xprop -root -f _NET_ACTIVE_WINDOW 0x \" \\$0\\\\n\" _NET_ACTIVE_WINDOW | awk \"{print \\$2}\""
 currentWindowID = `#{cmd}`
 currentWindowID.chomp!
-puts "currentWindowID: #{currentWindowID}" if opts.test
 s = currentWindowID.slice(-7,7)
 
 cmd = "wmctrl -lG | grep #{s}"
 geometry = `#{cmd}`
-puts geometry if opts.test
+puts geometry
 
 a = geometry.split(/\s+/)
 
@@ -34,45 +33,40 @@ y = a[3]
 w = a[4]
 h = a[5]
 
-puts "x:#{x} y:#{y} w:#{w} h:#{h}" if opts.test
+puts "x:#{x} y:#{y} w:#{w} h:#{h}"
 
 x = x.to_i
 
 if opts.left
-  x-=4
   r = x % 960
+
   x -= r
-  if x <1920
-    h=1138
-  else
-    h=1173
+  x -= 960
+  if x < 0
+    x = 0
   end
-  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,954,#{h}'"
-  puts cmd if opts.test
-  `#{cmd}` if !opts.test
+  cmd = "wmctrl -i -r #{id} -e '0,3,23,954,1138'"
+  #puts cmd
+  `#{cmd}`
 elsif opts.right
   r = x % 960
   x -= r
   x += 960
-  if x <1920
-    h=1138
-  else
-    h=1173
-  end
   if x > 2880
     x = 2880
   end
-  puts "x: #{x}"
   cmd = "wmctrl -i -r #{id} -e '0,#{x},0,960,#{h}'"
-  puts cmd if opts.test
-  `#{cmd}` if !opts.test
+  #puts cmd
+  `#{cmd}`
 elsif opts.fullheight
-  if x <1920
-    h=1138
+  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,#{w},1138'"
+  `#{cmd}`
+elsif opts.topleft
+  if x >= 1920
+    x = 1920
   else
-    h=1173
+    x = 0
   end
-  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,#{w},#{h}'"
-  puts cmd if opts.test
-  `#{cmd}` if !opts.test
+  cmd = "wmctrl -i -r #{id} -e '0,#{x},0,960,569'"
+  `#{cmd}`
 end
